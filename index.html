@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Strive Internal Calendar</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&f[]=cabinet-grotesk@500,700,800&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+      --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+      --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+      --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+      --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+      --space-1:.25rem;--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--space-10:2.5rem;--space-12:3rem;--space-16:4rem;
+      --radius-sm:.375rem;--radius-md:.75rem;--radius-lg:1rem;--radius-xl:1.5rem;--radius-full:9999px;
+      --color-bg:#f4f0e8;--color-surface:#faf7f1;--color-surface-2:#fffdf9;--color-surface-offset:#e9e2d5;--color-border:rgba(40,37,29,.14);
+      --color-text:#28251d;--color-text-muted:#6e695e;--color-text-faint:#9f9a90;--color-text-inverse:#f9f8f4;
+      --color-primary:#9a6a20;--color-primary-hover:#7d5416;--color-bitcoin:#f7931a;--color-teal:#0f6a63;--color-danger:#8a3d22;
+      --shadow-sm:0 1px 2px rgba(18,18,18,.08);--shadow-md:0 10px 30px rgba(18,18,18,.10);--shadow-lg:0 18px 48px rgba(18,18,18,.14);
+      --font-body:'Satoshi',Inter,sans-serif;--font-display:'Cabinet Grotesk','Satoshi',sans-serif;
+    }
+    [data-theme="dark"] {
+      --color-bg:#0f0e0d;--color-surface:#171513;--color-surface-2:#1d1a17;--color-surface-offset:#26211b;--color-border:rgba(255,248,235,.10);
+      --color-text:#f1ece2;--color-text-muted:#c0b8ac;--color-text-faint:#887f72;--color-text-inverse:#141210;
+      --color-primary:#d49a3a;--color-primary-hover:#efb457;--color-bitcoin:#f7931a;--color-teal:#30a192;--color-danger:#db7e5b;
+      --shadow-sm:0 1px 2px rgba(0,0,0,.25);--shadow-md:0 14px 40px rgba(0,0,0,.35);--shadow-lg:0 20px 60px rgba(0,0,0,.45);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{
+      min-height:100vh;font-family:var(--font-body);font-size:var(--text-base);color:var(--color-text);
+      background:radial-gradient(circle at top left,rgba(247,147,26,.12),transparent 26%),
+        radial-gradient(circle at top right,rgba(48,161,146,.10),transparent 24%),
+        var(--color-bg);
+    }
+    button,input,textarea,select{font:inherit;color:inherit;}
+    button{cursor:pointer;border:0;}
+    a{color:inherit;}
+    .shell{display:grid;grid-template-columns:320px minmax(0,1fr) 360px;min-height:100vh;}
+    .panel{border-right:1px solid var(--color-border);background:color-mix(in srgb,var(--color-surface) 92%,transparent);backdrop-filter:blur(14px);}
+    .left,.right{padding:var(--space-6);position:sticky;top:0;align-self:start;height:100vh;overflow:auto;}
+    .center{min-width:0;}
+    .brand{display:flex;align-items:center;gap:var(--space-3);margin-bottom:var(--space-8);}
+    .logo{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(247,147,26,.16),rgba(212,154,58,.28));box-shadow:var(--shadow-sm);}
+    .logo svg{width:28px;height:28px;}
+    .eyebrow{font-size:var(--text-xs);letter-spacing:.14em;text-transform:uppercase;color:var(--color-text-faint);}
+    .brand h1{font-family:var(--font-display);font-size:var(--text-lg);line-height:1.05;}
+    .stack{display:grid;gap:var(--space-4);}
+    .card{background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-xl);padding:var(--space-5);box-shadow:var(--shadow-sm);}
+    .card h2,.card h3{font-family:var(--font-display);font-size:var(--text-lg);margin-bottom:var(--space-2);}
+    .muted{color:var(--color-text-muted);}
+    .tiny{font-size:var(--text-xs);color:var(--color-text-faint);}
+    .badge-row,.legend{display:flex;gap:var(--space-2);flex-wrap:wrap;}
+    .badge{display:inline-flex;align-items:center;gap:.45rem;padding:.48rem .75rem;border-radius:var(--radius-full);font-size:var(--text-xs);background:var(--color-surface-offset);border:1px solid var(--color-border);}
+    .dot{width:9px;height:9px;border-radius:50%;background:var(--color-primary);}
+    .dot.bitcoin{background:var(--color-bitcoin);}.dot.teal{background:var(--color-teal);}.dot.red{background:var(--color-danger);}
+    .actions{display:grid;gap:var(--space-3);}
+    .btn{min-height:44px;padding:.82rem 1rem;border-radius:14px;font-size:var(--text-sm);transition:.18s ease;}
+    .btn-primary{background:var(--color-primary);color:var(--color-text-inverse);}
+    .btn-primary:hover{background:var(--color-primary-hover);}
+    .btn-secondary{background:var(--color-surface-offset);border:1px solid var(--color-border);}
+    .btn-ghost{background:transparent;border:1px dashed var(--color-border);}
+    .field,.select,textarea{width:100%;background:var(--color-surface);border:1px solid var(--color-border);border-radius:14px;padding:.85rem .95rem;}
+    textarea{min-height:92px;resize:vertical;}
+    label{display:grid;gap:var(--space-2);font-size:var(--text-sm);}
+    .grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-3);}
+    .topbar{display:flex;justify-content:space-between;gap:var(--space-4);align-items:end;padding:var(--space-8) var(--space-8) var(--space-4);}
+    .topbar h2{font-family:var(--font-display);font-size:var(--text-xl);max-width:10ch;line-height:.95;}
+    .hero-meta{display:flex;gap:var(--space-3);flex-wrap:wrap;}
+    .metric{padding:.85rem 1rem;border:1px solid var(--color-border);background:var(--color-surface);border-radius:16px;min-width:140px;}
+    .toolbar{display:flex;gap:var(--space-3);flex-wrap:wrap;padding:0 var(--space-8) var(--space-6);}
+    .search{flex:1 1 260px;}
+    .board{padding:0 var(--space-8) var(--space-10);display:grid;gap:var(--space-6);}
+    .month{background:color-mix(in srgb,var(--color-surface) 90%,transparent);border:1px solid var(--color-border);border-radius:28px;padding:var(--space-6);box-shadow:var(--shadow-md);}
+    .month-head{display:flex;justify-content:space-between;gap:var(--space-4);margin-bottom:var(--space-5);align-items:center;}
+    .month-head h3{font-family:var(--font-display);font-size:var(--text-lg);}
+    .calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:var(--space-3);}
+    .dow{font-size:var(--text-xs);text-transform:uppercase;letter-spacing:.12em;color:var(--color-text-faint);padding:0 .35rem;}
+    .day{min-height:154px;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:22px;padding:.9rem;display:grid;gap:.75rem;align-content:start;}
+    .day.is-empty{background:transparent;border-style:dashed;opacity:.42;}
+    .day-num{font-size:var(--text-sm);color:var(--color-text-muted);}
+    .pill{display:grid;gap:.3rem;padding:.62rem .72rem;border-radius:14px;border:1px solid transparent;}
+    .pill.key{background:rgba(212,154,58,.14);border-color:rgba(212,154,58,.22);}
+    .pill.bitcoin{background:rgba(247,147,26,.12);border-color:rgba(247,147,26,.26);}
+    .pill.holiday{background:rgba(48,161,146,.12);border-color:rgba(48,161,146,.24);}
+    .pill-title{font-size:var(--text-xs);font-weight:700;}
+    .pill-copy{font-size:12px;color:var(--color-text-muted);line-height:1.35;}
+    .right{border-left:1px solid var(--color-border);border-right:0;}
+    .chat{display:grid;gap:var(--space-4);}
+    .message-list{display:grid;gap:var(--space-3);max-height:340px;overflow:auto;}
+    .message{padding:1rem;border-radius:18px;background:var(--color-surface-2);border:1px solid var(--color-border);}
+    .message.ai{background:rgba(48,161,146,.08);}
+    .message.user{background:rgba(247,147,26,.08);}
+    .footer-note{padding-top:var(--space-4);border-top:1px solid var(--color-border);}
+    .hidden{display:none!important;}
+    @media(max-width:1180px){
+      .shell{grid-template-columns:1fr;}
+      .left,.right{position:relative;height:auto;border-right:0;border-left:0;}
+      .topbar,.toolbar,.board{padding-inline:var(--space-6);}
+    }
+    @media(max-width:720px){
+      .calendar-grid{grid-template-columns:1fr;}
+      .dow{display:none;}
+      .day.is-empty{display:none;}
+      .topbar{align-items:start;flex-direction:column;}
+      .grid-2{grid-template-columns:1fr;}
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="panel left">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M18 19h25.5c6.2 0 10.5 3.4 10.5 8.5 0 4.1-2.6 6.9-6.6 8 5 1 8.2 4.2 8.2 8.9 0 6.1-5.1 10.6-12.9 10.6H18" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+            <path d="M26 12v40M36 12v40" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="eyebrow">Strive Planning OS</div>
+          <h1>Internal Calendar</h1>
+        </div>
+      </div>
+      <div class="stack">
+        <section class="card">
+          <h2>Purpose</h2>
+          <p class="muted">Bitcoin-forward internal planning layer for key company events, Bitcoin-relevant dates, and internal agendas. Scroll, search, add events, and export to JSON for repo updates.</p>
+        </section>
+        <section class="card">
+          <h3>Calendar lanes</h3>
+          <div class="legend">
+            <span class="badge"><span class="dot"></span>Key events</span>
+            <span class="badge"><span class="dot bitcoin"></span>Bitcoin days</span>
+            <span class="badge"><span class="dot teal"></span>Holidays</span>
+            <span class="badge"><span class="dot red"></span>Risk / watch</span>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Add entry</h3>
+          <div class="stack">
+            <label>Title <input id="title" class="field" placeholder="Board prep, launch review, BTC event" /></label>
+            <div class="grid-2">
+              <label>Date <input id="date" type="date" class="field" /></label>
+              <label>Type
+                <select id="type" class="select">
+                  <option value="key">Key event</option>
+                  <option value="bitcoin">Bitcoin relevant</option>
+                  <option value="holiday">Holiday</option>
+                </select>
+              </label>
+            </div>
+            <label>Agenda / notes <textarea id="notes" placeholder="Agenda bullets, prep notes, owner, links, dependencies"></textarea></label>
+            <div class="actions">
+              <button class="btn btn-primary" id="addEvent">Add to calendar</button>
+              <button class="btn btn-secondary" id="loadMock">Reload mock data</button>
+            </div>
+          </div>
+        </section>
+        <section class="card">
+          <h3>Data &amp; publish</h3>
+          <p class="muted" style="margin-bottom:1rem;">Export the calendar as JSON, update it via this Perplexity Space, then commit and push to GitHub to republish the live site.</p>
+          <div class="actions">
+            <button class="btn btn-secondary" id="exportJson">Export data JSON</button>
+            <label class="btn btn-ghost" for="importJson" style="display:grid;place-items:center;cursor:pointer;">Import data JSON</label>
+            <input id="importJson" type="file" accept="application/json" class="hidden" />
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <main class="center">
+      <section class="topbar">
+        <div>
+          <div class="eyebrow">Bitcoin-forward internal operating view</div>
+          <h2>Scroll the year. Plan by context.</h2>
+        </div>
+        <div class="hero-meta">
+          <div class="metric"><div class="tiny">Visible months</div><div id="monthCount">—</div></div>
+          <div class="metric"><div class="tiny">Stored entries</div><div id="eventCount">—</div></div>
+          <div class="metric">
+            <div class="tiny">Theme</div>
+            <button id="themeToggle" class="btn btn-secondary" style="margin-top:.45rem;min-height:40px;width:100%;">Toggle light / dark</button>
+          </div>
+        </div>
+      </section>
+      <section class="toolbar">
+        <input id="search" class="field search" placeholder="Search titles, agendas, months, or tags…" />
+        <button class="btn btn-secondary" id="jumpToday">Jump to today's month</button>
+      </section>
+      <section class="board" id="board"></section>
+    </main>
+
+    <aside class="panel right">
+      <div class="stack">
+        <section class="card chat">
+          <div>
+            <div class="eyebrow">Planning assistant</div>
+            <h3>Contexted planning</h3>
+          </div>
+          <div class="message-list" id="messages">
+            <div class="message ai"><strong>Assistant</strong><br><span class="muted">I can reason over the calendar context, suggest agendas, group related deadlines, and generate the JSON payload for your next GitHub publish.</span></div>
+            <div class="message user"><strong>You</strong><br><span class="muted">Build a Bitcoin treasury planning cadence for earnings week.</span></div>
+            <div class="message ai"><strong>Assistant</strong><br><span class="muted">Suggested structure: pre-brief Mon, exec alignment Tue, filing review Wed, X messaging draft Thu, post-event analysis Fri. Want me to add these as calendar entries and generate the export JSON?</span></div>
+          </div>
+          <label>Your prompt
+            <textarea id="chatInput" placeholder="Ask to organize an agenda, group dates, suggest a cadence, or draft an internal plan…"></textarea>
+          </label>
+          <button class="btn btn-primary" id="sendChat">Send</button>
+        </section>
+        <section class="card">
+          <h3>How to republish</h3>
+          <ol style="padding-left:1.2rem;display:grid;gap:.6rem;font-size:var(--text-sm);color:var(--color-text-muted);">
+            <li>Edit or add events in this Space chat</li>
+            <li>Export data JSON from the left panel</li>
+            <li>Replace <code>index.html</code> in the GitHub repo via this Space or git push</li>
+            <li>GitHub Pages auto-deploys on push</li>
+          </ol>
+        </section>
+        <section class="card footer-note">
+          <div class="eyebrow">Live site</div>
+          <p class="muted">Hosted at <strong>danimontoya-strive.github.io/strive-internal-calendar</strong> — enable GitHub Pages in repo Settings → Pages → Deploy from branch: main.</p>
+        </section>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const board=document.getElementById('board');
+    const searchInput=document.getElementById('search');
+    const eventCountEl=document.getElementById('eventCount');
+    const monthCountEl=document.getElementById('monthCount');
+    const currentMonthId=new Date().toISOString().slice(0,7);
+
+    const mockEvents=[
+      {title:'Q3 Strategy Offsite',date:'2026-07-09',type:'key',notes:'Exec planning, agenda framing, owners, follow-up actions.'},
+      {title:'Bitcoin Treasury Review',date:'2026-07-13',type:'bitcoin',notes:'Treasury positioning, market context, BTC talking points.'},
+      {title:'Company Summer Holiday',date:'2026-07-24',type:'holiday',notes:'Reduced staffing and approvals.'},
+      {title:'Investor Narrative Workshop',date:'2026-08-06',type:'key',notes:'Narrative alignment, IR deck, executive remarks.'},
+      {title:'BTC Culture Moment',date:'2026-08-10',type:'bitcoin',notes:'Content concept placeholder for Bitcoin cultural calendar events.'},
+      {title:'Labor Day Planning Lock',date:'2026-09-07',type:'holiday',notes:'Holiday coverage plan and deadline pull-forward.'},
+      {title:'Earnings Preparation Block',date:'2026-09-15',type:'key',notes:'Cross-functional prep, final approvals, media sequence.'},
+      {title:'Protocol / Market Watch',date:'2026-09-22',type:'bitcoin',notes:'Track industry catalysts relevant to Strive positioning.'},
+      {title:'Q4 Planning Kickoff',date:'2026-10-05',type:'key',notes:'Annual budget, headcount, and strategic priorities.'},
+      {title:'Bitcoin Halving Anniversary',date:'2026-10-20',type:'bitcoin',notes:'Annual narrative opportunity — content and IR moment.'},
+      {title:'Thanksgiving Planning Lock',date:'2026-11-25',type:'holiday',notes:'Coverage, approvals cadence, and pre-holiday sprint.'},
+      {title:'Year-End Review',date:'2026-12-14',type:'key',notes:'Annual performance, treasury review, shareholder letter prep.'},
+      {title:'Christmas Holiday',date:'2026-12-25',type:'holiday',notes:'Company holiday — skeleton crew only.'}
+    ];
+
+    const months=[
+      {id:'2026-07',label:'July 2026',days:31,start:3},
+      {id:'2026-08',label:'August 2026',days:31,start:6},
+      {id:'2026-09',label:'September 2026',days:30,start:2},
+      {id:'2026-10',label:'October 2026',days:31,start:4},
+      {id:'2026-11',label:'November 2026',days:30,start:0},
+      {id:'2026-12',label:'December 2026',days:31,start:2}
+    ];
+
+    let events=[...mockEvents];
+
+    function pillClass(t){return t==='bitcoin'?'bitcoin':t==='holiday'?'holiday':'key';}
+    function typeLabel(t){return t==='bitcoin'?'Bitcoin relevant':t==='holiday'?'Holiday':'Key event';}
+
+    function renderMonths(filter=''){
+      board.innerHTML='';
+      const q=filter.trim().toLowerCase();
+      let visibleMonths=0;
+      months.forEach(month=>{
+        const me=events.filter(e=>e.date.startsWith(month.id)).filter(e=>{
+          if(!q)return true;
+          return[e.title,e.notes,e.date,typeLabel(e.type),month.label].join(' ').toLowerCase().includes(q);
+        });
+        const ok=!q||month.label.toLowerCase().includes(q)||me.length>0;
+        if(!ok)return;
+        visibleMonths++;
+        const sec=document.createElement('section');
+        sec.className='month';sec.id='month-'+month.id;
+        sec.innerHTML=`<div class="month-head"><div><div class="eyebrow">Planning block</div><h3>${month.label}</h3></div><div class="badge-row"><span class="badge">${me.length} entries</span></div></div><div class="calendar-grid"><div class="dow">Sun</div><div class="dow">Mon</div><div class="dow">Tue</div><div class="dow">Wed</div><div class="dow">Thu</div><div class="dow">Fri</div><div class="dow">Sat</div></div>`;
+        const grid=sec.querySelector('.calendar-grid');
+        for(let i=0;i<month.start;i++){const e=document.createElement('div');e.className='day is-empty';grid.appendChild(e);}
+        for(let day=1;day<=month.days;day++){
+          const dateStr=`${month.id}-${String(day).padStart(2,'0')}`;
+          const dayEvts=me.filter(e=>e.date===dateStr);
+          const cell=document.createElement('article');
+          cell.className='day';
+          cell.innerHTML=`<div class="day-num">${day}</div>`;
+          dayEvts.forEach(e=>{
+            const pill=document.createElement('div');
+            pill.className=`pill ${pillClass(e.type)}`;
+            pill.innerHTML=`<div class="pill-title">${e.title}</div><div class="pill-copy">${typeLabel(e.type)}${e.notes?' · '+e.notes:''}</div>`;
+            cell.appendChild(pill);
+          });
+          if(!dayEvts.length){const b=document.createElement('div');b.className='pill-copy';b.textContent='–';cell.appendChild(b);}
+          grid.appendChild(cell);
+        }
+        board.appendChild(sec);
+      });
+      monthCountEl.textContent=`${visibleMonths} visible`;
+      eventCountEl.textContent=`${events.length} total`;
+    }
+
+    function download(filename,text){
+      const blob=new Blob([text],{type:'application/json'});
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);
+    }
+
+    document.getElementById('addEvent').addEventListener('click',()=>{
+      const title=document.getElementById('title').value.trim();
+      const date=document.getElementById('date').value;
+      const type=document.getElementById('type').value;
+      const notes=document.getElementById('notes').value.trim();
+      if(!title||!date)return alert('Please add a title and date.');
+      events.push({title,date,type,notes:notes||'Agenda details to be added.'});
+      renderMonths(searchInput.value);
+      document.getElementById('title').value='';document.getElementById('date').value='';document.getElementById('notes').value='';
+    });
+    document.getElementById('loadMock').addEventListener('click',()=>{events=[...mockEvents];renderMonths(searchInput.value);});
+    document.getElementById('exportJson').addEventListener('click',()=>download('strive-calendar-data.json',JSON.stringify(events,null,2)));
+    document.getElementById('importJson').addEventListener('change',async(e)=>{
+      const file=e.target.files[0];if(!file)return;
+      const text=await file.text();
+      try{const parsed=JSON.parse(text);if(!Array.isArray(parsed))throw new Error();events=parsed;renderMonths(searchInput.value);}
+      catch{alert('Invalid JSON — must be an array of event objects.');}
+    });
+    searchInput.addEventListener('input',e=>renderMonths(e.target.value));
+    document.getElementById('jumpToday').addEventListener('click',()=>{
+      const target=document.getElementById('month-'+currentMonthId)||document.querySelector('.month');
+      target?.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+    document.getElementById('themeToggle').addEventListener('click',()=>{
+      const html=document.documentElement;
+      html.setAttribute('data-theme',html.getAttribute('data-theme')==='dark'?'light':'dark');
+    });
+    document.getElementById('sendChat').addEventListener('click',()=>{
+      const input=document.getElementById('chatInput');
+      const list=document.getElementById('messages');
+      const prompt=input.value.trim();if(!prompt)return;
+      const user=document.createElement('div');user.className='message user';
+      user.innerHTML=`<strong>You</strong><br><span class="muted">${prompt}</span>`;
+      const ai=document.createElement('div');ai.className='message ai';
+      ai.innerHTML=`<strong>Assistant</strong><br><span class="muted">Mock response: this planning prompt would reason across your calendar dataset, group related dates, and prepare a repo-ready JSON update for your next push to GitHub.</span>`;
+      list.append(user,ai);list.scrollTop=list.scrollHeight;input.value='';
+    });
+
+    renderMonths();
+  </script>
+</body>
+</html>
